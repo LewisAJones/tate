@@ -1,8 +1,11 @@
+# Load packages
+library(colorblindcheck)
+
 # Code to prepare palettes data file
-london_palettes <- list(
+tate_palettes <- list(
   Cholmondeley = list(
     palette = c("#241e1e", "#6a6463", "#605251", "#832b13", "#988364", "#bab3ac","#d1cfd1"),
-    colourblind = TRUE),
+    colourblind = FALSE),
   Copley = list(
     palette = c("#3d2c24", "#8a1b17", "#c33423", "#6f7274", "#7c9284", "#ece9eb"),
     colourblind = FALSE),
@@ -29,10 +32,29 @@ london_palettes <- list(
     colourblind = FALSE),
   Bacon = list(
     palette = c("#9b5531", "#d15b13", "#c0b09d", "#403734"),
-    colourblind = TRUE),
+    colourblind = FALSE),
   Hockney = list(
     palette = c("#e3d4bf", "#cdada2", "#49754c", "#579fb8", "#e2e2e0"),
     colourblind = FALSE)
 )
 
-usethis::use_data(london_palettes, internal = TRUE, overwrite = TRUE)
+# Colourblind check
+# Set threshold for definition (4 is perhaps a bit higher than need be, but
+# better to be safe!)
+threshold <- 4
+tate_colourblind_friendly <- vector()
+for (i in 1:length(tate_palettes)) {
+
+  dist <- palette_check(x = tate_palettes[[i]]$palette)$min_dist
+  if (all(dist > threshold)) {
+  tate_palettes[[i]]$colourblind <- all(dist > threshold)
+  tate_colourblind_friendly <- append(tate_colourblind_friendly,
+                                        names(tate_palettes)[i])
+  }
+}
+
+# Save data
+usethis::use_data(tate_palettes,
+                  tate_colourblind_friendly,
+                  internal = TRUE, overwrite = TRUE)
+

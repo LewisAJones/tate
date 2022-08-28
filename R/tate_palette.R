@@ -1,7 +1,7 @@
 #' Generate colour palette
 #'
 #' A function to generate a colour palette based on the available palettes in
-#' `london`.
+#' `tate`.
 #'
 #' @param name \code{character}. Name of desired palette. Either:
 #' \code{Cholmondeley}, \code{Copley}, \code{Blake}, \code{Turner},
@@ -14,48 +14,69 @@
 #' to automatically interpolate between colours.
 #' @param direction \code{numeric}. Sets the orders of colours in the scale.
 #' Default order is 1. Palette is reversed by specifying -1.
+#' @param friendly \code{logical}. Should non-colourblind friendly palettes
+#' be removed?
 #' @param display \code{logical}. Should the colour palette be displayed?
 #'
 #' @return A vector of hex colour codes.
 #'
 #' @importFrom grDevices colorRampPalette
 #' @examples
-#' london_palette(name = "Hockney", display = TRUE)
-#' london_palette(name = "Sargent", n = 90, type = "continuous", display = TRUE)
-#' london_palette(name = "All", display = TRUE)
+#' tate_palette(name = "Hockney", display = TRUE)
+#' tate_palette(name = "Sargent", n = 1000, type = "continuous", display = TRUE)
+#' tate_palette(name = "All", display = TRUE)
+#' tate_palette(name = "All", friendly = TRUE, display = TRUE)
 #' @keywords colours
 #' @export
-london_palette <- function(name, n = NULL, type = "discrete", direction = 1,
+tate_palette <- function(name, n = NULL, type = "discrete", direction = 1,
+                           friendly = FALSE,
                            display = FALSE) {
 
   # Error handling ----------------------------------------------------------
   if (missing(name)) {
     stop("`name` has not been supplied.")
   }
-  # If ALL required, call function
+  # If All required, call function
   if (name == "All") {
-    pal <- lapply(names(london_palettes), function(x){
+      # Colourblind friendly palettes desired?
+    if (friendly == TRUE) {
+      nme <- tate_colourblind_friendly
+    } else {nme <- names(tate_palettes)}
+    # Run across palette names
+    pal <- lapply(nme, function(x){
       if (is.null(n)) {
-        n <- length(london_palettes[[x]]$palette)
+        n <- length(tate_palettes[[x]]$palette)
       }
-      pal <- london_palette(name = x, n = n, type = type,
-                            direction = direction, display = FALSE)
+      # Create palettes
+      pal <- tate_palette(name = x, n = n, type = type,
+                            direction = direction, friendly = FALSE,
+                            display = FALSE)
     })
-    names(pal) <- names(london_palettes)
-    pal <- structure(pal, class = "london_palette_list",
-                     name = "london_palette")
+    # Assign names
+    names(pal) <- nme
+    # Set output structure
+    pal <- structure(pal, class = "tate_palette_list",
+                     name = "tate_palette")
+    # Display palettes?
     if (display == TRUE) {
-      london_display(x = pal)
+      tate_display(x = pal)
     }
     return(pal)
   }
 
   # Extract desired palette
-  pal <- london_palettes[[name]]
+  pal <- tate_palettes[[name]]
   # Does the palette exist?
   if (is.null(pal)) {
     stop("Specified palette not found. Please check spelling.")
   }
+  # Colourblind friendly check
+  if (friendly == TRUE) {
+    if(pal$colourblind == FALSE) {
+      stop("Palette is not colourblind friendly. Choose another palette.")
+    }
+  }
+
   # If n does not exist using default length of palette
   if (is.null(n)) {
     n <- length(pal$palette)
@@ -101,11 +122,11 @@ london_palette <- function(name, n = NULL, type = "discrete", direction = 1,
         round(seq(from = length(pal$palette), to = 1, length.out = n))]
     }
   }
-  pal <- structure(pal, class = "london_palette", name = name)
+  pal <- structure(pal, class = "tate_palette", name = name)
   # Wrap-up and return palette -------------------------------------------------
   # Display palette?
   if (display == TRUE) {
-    london_display(x = pal)
+    tate_display(x = pal)
   }
   return(pal)
 }
