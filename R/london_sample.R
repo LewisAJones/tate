@@ -10,9 +10,9 @@
 #' @export
 #' @examples
 #' url <- "https://t4.ftcdn.net/jpg/02/90/91/11/240_F_290911157_rJMt9bp5sq64hyY6TklM9XS5GoDg07Vh.jpg"
-#' london.sample(path = url, n = 4, type = "discrete")
+#' london_sample(path = url, n = 4, type = "discrete")
 #'
-london.sample <- function(path, n = 4, type = "discrete", direction = 1, plot = TRUE){
+london_sample <- function(path, n = 4, type = "discrete", direction = 1, plot = TRUE){
   #error handling
   if(is.null(path)){
     stop("Path is missing")
